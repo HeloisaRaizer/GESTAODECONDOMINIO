@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edição de bloco</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Editar bloco</h1>
+    <p>Modifique os dados e clique em <strong>Salvar</strong> para atualizar.</p>
+    <form action="/edit/<%= bloco.idbloco %>" method="POST">
+        <label for="descricao">Descrição:</label>
+        <input type="text" name="descricao" value="<%= bloco.descricao %>" required>
+
+        <label for="qtdApt">Quantidade de apartamentos:</label>
+        <input type="number" name="qtdApt" value="<% bloco.qtdApartamentos %>" required>
+
+
+        <button type="submit" value="Entrar">Salvar</button>
+    </form>
+</body>
+</html>

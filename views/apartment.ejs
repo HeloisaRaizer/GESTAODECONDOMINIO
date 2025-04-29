@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Apartamentos</title>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Condomínio</h1>
+
+    <h2>Pesquisar apartamentos</h2>
+    <form method="post" action="/searchApt">
+        <input type="text" name="pesquisa" placeholder="ex: 101" required>
+        <button type="submit" value="Entrar">Pesquisar</button>
+    </form>
+
+
+    <table >
+        <tr>
+            <th>Bloco</th>
+            <th>Numero do apartamento</th>
+            <th>Ações</th>
+        </tr>
+        <% rows.forEach(row => { %>
+            <tr>
+                <td><%= row.bloco %></td>
+                <td><%= row.numeroApartamento %></td>
+                <td>
+                    <a href="/delete/<%= row.idapartamento %>">Excluir</a>
+                    <a href="/edit/<%= row.idapartamento %>">Editar</a>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+
+    <a href="/">Voltar</a>
+    <a href="/cadastroApt">Cadastar novo Apartamento</a>
+
+</body>
+</html>

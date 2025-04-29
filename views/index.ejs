@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Blocos</title>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Condomínio</h1>
+
+    <h2>Pesquisar bloco</h2>
+    <form method="post" action="/search">
+        <input type="text" name="pesquisa" placeholder="ex: Bloco A" required>
+        <button type="submit" value="Entrar">Pesquisar</button>
+    </form>
+
+
+    <table >
+        <tr>
+            <th>Descrição</th>
+            <th>Qtd de apartamentos</th>
+            <th>Ações</th>
+        </tr>
+        <% rows.forEach(row => { %>
+            <tr>
+                <td><%= row.descricao %></td>
+                <td><%= row.qtdApartamentos %></td>
+                <td>
+                    <a href="/delete/<%= row.idbloco %>">Excluir</a>
+                    <a href="/edit/<%= row.idbloco %>">Editar</a>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+
+    <a href="/">Voltar</a>
+    <a href="/CadastroBloco">Cadastar novo bloco</a>
+
+</body>
+</html>
