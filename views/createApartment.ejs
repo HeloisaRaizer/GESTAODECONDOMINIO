@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Novo Apartamento</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Cadastrar Novo Apartamento</h1>
+
+    <form action="/createApt" method="POST">
+        <label for="bloco">Bloco:</label><br>
+
+        <label for="bloco">Selecione o Bloco:</label>
+        <select name="bloco" id="bloco" required>
+            <option value="">Selecione um bloco</option>
+            <% rows.forEach(row => { %>
+                <option value="<%= row.idbloco %>"><%= row.descricao %></option>
+            <% }); %>
+        </select>        
+        
+        <label for="numeroApt">Numero do Apartamento:</label><br>
+        <input type="number" id="numeroApt" name="numeroApt" required><br><br>
+
+        <button type="submit">Cadastrar</button>
+
+    </form>
+
+    <a href="/">Voltar</a>
+
+</body>
+</html>

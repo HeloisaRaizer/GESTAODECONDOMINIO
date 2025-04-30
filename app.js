@@ -163,6 +163,32 @@ app.get("/apartment", function(req, res){
 
 });
 
+app.get("/createApt", function(req, res){
+
+    const showblocos = "SELECT idbloco, descricao FROM bloco"
+
+    connection.query(showblocos, function(err, result){
+        if(err){
+            return res.status(500).send('Erro ao buscar dados')
+        }
+
+        res.render("createApartment", {rows: result})
+    })
+
+})
+
+app.get("/edit/:idapartamento", function(req, res){
+    const idapartamento = req.params.idapartamento;
+    const query = 'SELECT * FROM Apartamento WHERE idapartamento = ?';
+
+    connection.query(query, [idapartamento], (err, results) => {
+        if (err) return res.status(500).send('Erro ao buscar o apartamento');
+        if (results.length === 0) return res.status(404).send('apartamento não encontrado');
+
+        res.render('editApt', { row: results[0] });
+    });
+});
+
 app.post("/searchApt", function(req, res){
     const search = req.body.pesquisa
     const query = "SELECT b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco where numeroApt = ?"
@@ -195,6 +221,33 @@ app.post("/searchApt", function(req, res){
 
 });
 
+app.post("/createApt", function(req, res){
+    const bloco = req.body.bloco
+    const numApt = req.body.numeroApt
+
+
+    const create = "insert into Apartamento(bloco_id, numeroApt) values (?, ?)"
+
+    connection.query(create, [bloco, numApt], function(err, results){
+        if(err){
+            console.log("Não foi possível inserir os dados:", err);
+            return res.send(`
+                <html>
+                <head>
+                <link rel="stylesheet" href="/style.css">
+                </head>
+                <h1>ERRO</h1>
+                <h2>Apartamento ja existente. Por favor, crie um apartamento novo!<h2>
+                <a href="/createApt">Voltar</a>
+                </html>
+                `);
+        }
+
+        console.log("Dados inseridos com sucesso");
+        res.redirect("/apartment");
+        
+    });
+});
 
 app.listen(8083, function(){
     console.log("Servidor rodando na URL http://localhost:8083")

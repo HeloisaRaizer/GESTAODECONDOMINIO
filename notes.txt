@@ -1,0 +1,37 @@
+bloco:
+id => AI
+Descrição => ex: Bloco A
+qtdApt => Deve ser a soma dos apartamentos que estejam no Bloco
+
+apartamento:
+id => AI
+Bloco => Deve ser uma chave estrangeira puxando da tabela bloco
+numeroApt => ex: 101
+
+morador:
+idmorador => AI
+cpf => ex: 123.456.789-00
+nome => João da Silva
+apt => Deve ser uma chave estrangeira da table apartamento. não pode ser único pois em outros blocos tbm podem ter por ex um ap 101
+bloco => deve identificar de qual bloco é, pegando da table apartamento
+telefone => ex: 12345-6789
+
+pagamento:
+idpagamento => AI
+apartamento => Deve ser uma chave estrangeira da table apartamento
+cpf => Deve ser uma chave estrangeira de morador
+morador => Deve ser uma chave estrangeira de morador
+telefone => Deve ser uma chave estrangeira de morador
+mês/ano => date
+valor=> float
+vencimento => date
+
+manutenção:
+idmanutencao => AI
+tipoManutencao => ex: pintura
+data => date
+local => varchar(255)
+
+
+
+
