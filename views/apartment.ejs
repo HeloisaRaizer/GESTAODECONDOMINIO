@@ -27,8 +27,8 @@
         </tr>
         <% rows.forEach(row => { %>
             <tr>
-                <td><%= row.bloco %></td>
-                <td><%= row.numeroApartamento %></td>
+                <td><%= row.descricao %></td>
+                <td><%= row.numeroApt %></td>
                 <td>
                     <a href="/delete/<%= row.idapartamento %>">Excluir</a>
                     <a href="/edit/<%= row.idapartamento %>">Editar</a>

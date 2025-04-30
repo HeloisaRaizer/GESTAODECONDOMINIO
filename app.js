@@ -29,9 +29,10 @@ connection.connect(function(err){
 app.get("/cadastroBloco", function(req, res){
     res.render("create")
 });
+
 app.get("/edit/:idbloco", function(req, res){
     const idbloco = req.params.idbloco;
-    const query = 'SELECT * FROM bloco WHERE idbloco = ?';
+    const query = 'SELECT * FROM Bloco WHERE idbloco = ?';
 
     connection.query(query, [idbloco], (err, results) => {
         if (err) return res.status(500).send('Erro ao buscar o bloco');
@@ -42,7 +43,7 @@ app.get("/edit/:idbloco", function(req, res){
 });
 
 app.get("/", function(req, res){
-    const select = "Select * from bloco"
+    const select = "Select * from Bloco"
 
     connection.query(select, function(err, results){
         if (err){
@@ -57,7 +58,7 @@ app.get("/", function(req, res){
 app.get("/delete/:idbloco", function(req, res){
     const idbloco = req.params.idbloco;
 
-    const excluir = "DELETE FROM bloco where idbloco = ?" 
+    const excluir = "DELETE FROM Bloco where idbloco = ?" 
 
     connection.query(excluir, [idbloco], function(err, result){
         if(err){
@@ -75,7 +76,7 @@ app.get("/delete/:idbloco", function(req, res){
 
 app.post("/search", function(req, res){
     const search = req.body.pesquisa
-    const query = "SELECT * FROM bloco where descricao = ?"
+    const query = "SELECT * FROM Bloco where descricao = ?"
 
     connection.query(query, [search], function(err, results){
         if(err){
@@ -108,7 +109,7 @@ app.post("/create", function(req, res){
     const descricao = req.body.descricao
     const qtdApt = req.body.qtdApt
 
-    const create = "INSERT INTO bloco (descricao, qtdApartamentos) VALUES (?, ?)"
+    const create = "INSERT INTO bloco (descricao, qtdApt) VALUES (?, ?)"
 
     connection.query(create, [descricao, qtdApt], function(err, results){
         if (err) {
@@ -122,7 +123,7 @@ app.post("/create", function(req, res){
                 `);
         }
 
-        console.log("Dados inseridos com sucesso:");
+        console.log("Dados inseridos com sucesso");
         res.redirect("/");
     });
 });
@@ -134,7 +135,7 @@ app.post("/edit/:idbloco", function(req, res){
     const descricao = req.body.descricao;
     const qtdApt = req.body.qtdApt;
 
-    const update = "UPDATE bloco SET descricao = ?, qtdApartamentos = ? WHERE idbloco = ?";
+    const update = "UPDATE bloco SET descricao = ?, qtdApt = ? WHERE idbloco = ?";
  
     connection.query(update, [descricao, qtdApt, idbloco], function(err, result){
         if(!err){
@@ -150,7 +151,7 @@ app.post("/edit/:idbloco", function(req, res){
 // Consulta de apartamentos
 
 app.get("/apartment", function(req, res){
-    const select = "Select * from apartamento"
+    const select = "SELECT b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco"
 
     connection.query(select, function(err, results){
         if (err){
@@ -164,7 +165,7 @@ app.get("/apartment", function(req, res){
 
 app.post("/searchApt", function(req, res){
     const search = req.body.pesquisa
-    const query = "SELECT * FROM apartamento where numeroApartamento = ?"
+    const query = "SELECT b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco where numeroApt = ?"
 
     connection.query(query, [search], function(err, results){
         if(err){
