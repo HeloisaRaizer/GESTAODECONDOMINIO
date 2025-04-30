@@ -151,7 +151,7 @@ app.post("/edit/:idbloco", function(req, res){
 // Consulta de apartamentos
 
 app.get("/apartment", function(req, res){
-    const select = "SELECT b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco"
+    const select = "SELECT b.descricao, a.numeroApt, a.idapartamento FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco"
 
     connection.query(select, function(err, results){
         if (err){
@@ -163,7 +163,7 @@ app.get("/apartment", function(req, res){
 
 });
 
-app.get("/createApt", function(req, res){
+app.get("/apartment/create", function(req, res){
 
     const showblocos = "SELECT idbloco, descricao FROM bloco"
 
@@ -175,19 +175,65 @@ app.get("/createApt", function(req, res){
         res.render("createApartment", {rows: result})
     })
 
-})
+});
 
-app.get("/edit/:idapartamento", function(req, res){
+app.get("/apartment/edit/:idapartamento", function(req, res){
     const idapartamento = req.params.idapartamento;
-    const query = 'SELECT * FROM Apartamento WHERE idapartamento = ?';
 
-    connection.query(query, [idapartamento], (err, results) => {
+    const queryApartamento = 'SELECT * FROM Apartamento WHERE idapartamento = ?';
+    const queryBlocos = 'SELECT * FROM Bloco';
+
+    connection.query(queryApartamento, [idapartamento], (err, resultsApt) => {
         if (err) return res.status(500).send('Erro ao buscar o apartamento');
-        if (results.length === 0) return res.status(404).send('apartamento não encontrado');
+        if (resultsApt.length === 0) return res.status(404).send('apartamento não encontrado');
 
-        res.render('editApt', { row: results[0] });
+        connection.query(queryBlocos, (err, resultsBlocos) => {
+            if (err) return res.status(500).send('Erro ao buscar os blocos');
+
+            res.render('editApartment', { 
+                apartamento: resultsApt[0], 
+                blocos: resultsBlocos 
+            });
+        });
     });
 });
+
+app.get("/apartment/delete/:idapartamento", function(req, res){
+    const idapartamento = req.params.idapartamento;
+
+    const excluir = "DELETE FROM Apartamento where idapartamento = ?" 
+
+    connection.query(excluir, [idapartamento], function(err, result){
+        if(err){
+            console.error("Erro ao excluir o apartamento: ", err);
+            res.status(500).send('Erro interno ao excluir o apartamento.');
+            return;
+        }
+
+        
+        console.log("Apartamento excluido com sucesso!");
+        res.redirect('/apartment');
+    });
+
+});
+
+app.post("/apartment/edit/:idapartamento", function(req, res){
+    const idapartamento = req.params.idapartamento;
+    const numApt = req.body.numApt;
+    const idbloco = req.body.bloco;
+
+    const update = "UPDATE Apartamento SET numeroApt = ?, bloco_id = ? WHERE idapartamento = ?";
+ 
+    connection.query(update, [numApt, idbloco, idapartamento], function(err, result){
+        if(!err){
+            console.log("Apartamento editado com sucesso!");
+            res.redirect('/apartment'); 
+        }else{
+            console.log("Erro ao editar o apartamento ", err);
+            res.send("Erro")
+        }
+    });
+}); 
 
 app.post("/searchApt", function(req, res){
     const search = req.body.pesquisa
@@ -221,7 +267,7 @@ app.post("/searchApt", function(req, res){
 
 });
 
-app.post("/createApt", function(req, res){
+app.post("/apartment/create", function(req, res){
     const bloco = req.body.bloco
     const numApt = req.body.numeroApt
 
@@ -238,7 +284,7 @@ app.post("/createApt", function(req, res){
                 </head>
                 <h1>ERRO</h1>
                 <h2>Apartamento ja existente. Por favor, crie um apartamento novo!<h2>
-                <a href="/createApt">Voltar</a>
+                <a href="/apartment/create">Voltar</a>
                 </html>
                 `);
         }

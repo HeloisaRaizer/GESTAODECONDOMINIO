@@ -93,6 +93,7 @@ insert into Apartamento(bloco_id, numeroApt) values (1, "102");
 
 
 select * from bloco;
+select * from Apartamento;
 
 SELECT * FROM bloco where descricao = "Bloco A";
 
@@ -106,7 +107,7 @@ SELECT * FROM bloco where descricao = "Bloco A";
   
   SELECT  b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
   
-SELECT  descricao FROM Bloco JOIN Bloco ON idbloco;
+SELECT  b.descricao FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
 
 
 CREATE TABLE Apartamento (

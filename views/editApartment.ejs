@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edição de apartamento</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Editar apartamento</h1>
+    <p>Modifique os dados e clique em <strong>Salvar</strong> para atualizar.</p>
+    <form action="/apartment/edit/<%= apartamento.idapartamento %>" method="POST">
+        <label for="descricao">Número do apartamento:</label>
+        <input type="text" name="numApt" value="<%= apartamento.numeroApt %>" required>
+    
+        <label for="bloco">Selecione o Bloco:</label>
+        <select name="bloco" id="bloco" required>
+            <option value="">Selecione um bloco</option>
+            <% blocos.forEach(row => { %>
+                <option value="<%= row.idbloco %>" <%= row.idbloco === apartamento.bloco_id ? 'selected' : '' %>><%= row.descricao %></option>
+            <% }); %>
+        </select>        
+    
+        <button type="submit" value="Entrar">Salvar</button>
+    </form>
+    <a href="javascript:history.back()">Voltar</a>
+</body>
+</html>

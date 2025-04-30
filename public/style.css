@@ -130,3 +130,27 @@ navbar a:hover {
     background-color: #34495e;
     color: #ecf0f1;
 }
+
+/* Estilo para <select> e <option> */
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+option {
+    font-size: 16px;
+    padding: 5px;
+}

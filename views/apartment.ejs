@@ -30,15 +30,16 @@
                 <td><%= row.descricao %></td>
                 <td><%= row.numeroApt %></td>
                 <td>
-                    <a href="/delete/<%= row.idapartamento %>">Excluir</a>
-                    <a href="/edit/<%= row.idapartamento %>">Editar</a>
+                    <a href="/apartment/delete/<%= row.idapartamento %>">Excluir</a>
+                    <a href="/apartment/edit/<%= row.idapartamento %>">Editar</a>
                 </td>
+                 <!-- <td><%= JSON.stringify(row) %></td> Verifica oq tem na row -->
             </tr>
         <% }); %>
     </table>
 
-    <a href="/">Voltar</a>
-    <a href="/createApt">Cadastar novo Apartamento</a>
+    <a href="javascript:history.back()">Voltar</a>
+    <a href="/apartment/create">Cadastar novo Apartamento</a>
 
 </body>
 </html>
