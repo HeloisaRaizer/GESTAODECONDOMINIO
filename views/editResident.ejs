@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Novo Morador</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Cadastrar Novo Morador</h1>
+
+
+    <form action="/residents/edit/<%= morador.idmorador %>" method="GET">
+        <label for="idbloco">Selecione o Bloco:</label>
+        <select name="idbloco" id="idbloco" required onchange="this.form.submit()">
+            <option value="">Selecione um bloco</option>
+            <% blocos.forEach(row => { %>
+                <option value="<%= row.idbloco %>" <%= blocoSelecionado == row.idbloco ? 'selected' : '' %>><%= row.descricao %></option>
+            <% }); %>
+        </select>
+    </form>
+
+
+    
+    <form action="/residents/edit/<%= morador.idmorador %>" method="POST">
+        <input type="hidden" name="idbloco" value="<%= blocoSelecionado %>">
+
+        <label for="cpf">CPF:</label>
+        <input type="text" id="cpf" name="cpf" placeholder="123.456.789-00" required>
+
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="apartment">Selecione o Apartamento:</label>
+        <select name="apartment" id="apartment" required>
+            <option value="">Selecione um apartamento</option>
+            <% apartamentos.forEach(row => { %>
+                <option value="<%= row.idapartamento %>"><%= row.numeroApt %></option>
+            <% }); %>
+        </select>    
+
+        <label for="fone">Telefone:</label>
+        <input type="text" id="fone" name="fone" placeholder="12345-6789">
+
+        <label for="manager">Responsável pelo Apt?</label>
+        <select id="manager" name="manager" required>
+            <option value="1">Sim</option>
+            <option value="2">Não</option>
+        </select>
+
+        <label for="owner">Proprietário do Apt?</label>
+        <select id="owner" name="owner" required>
+            <option value="1">Sim</option>
+            <option value="2">Não</option>
+        </select>
+
+        <label for="car">Possui Veículo?</label>
+        <select id="car" name="car" required onchange="toggleVagas(this.value)">
+            <option value="1">Sim</option>
+            <option value="2" selected>Não</option>
+        </select>
+
+        <div id="vagasFields" style="display:none;">
+            <label for="carSpaces">Quantidade de Vagas:</label>
+            <input type="number" id="carSpaces" name="carSpaces" min="1">
+
+            <label for="numSpaces">Número da Vaga:</label>
+            <input type="number" id="numSpaces" name="numSpaces" min="1">
+
+            <h2>Cadastrar veículo</h2>
+        <label for="plate">Placa:</label>
+        <input type="text" id="plate" name="plate" placeholder="PHL 4506">
+        <label for="brand">Marca:</label>
+        <input type="text" id="brand" name="brand" placeholder="">
+        <label for="model">Modelo:</label>
+        <input type="text" id="model" name="model" placeholder="">
+        </div>
+
+        
+
+        <button type="submit">Cadastrar Morador</button>
+    </form>
+
+
+    <a href="javascript:history.back()">Voltar</a>
+
+    <script>
+    function toggleVagas(value) {
+        const fields = document.getElementById('vagasFields');
+        if (value === "1") {
+            fields.style.display = 'block';
+        } else {
+            fields.style.display = 'none';
+            document.getElementById('carSpaces').value = '';
+            document.getElementById('numSpaces').value = '';
+            document.getElementById('plate').value = '';
+            document.getElementById('brand').value = '';
+            document.getElementById('model').value = '';
+        }
+    }
+    </script>
+
+</body>
+</html>

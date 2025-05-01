@@ -1,7 +1,8 @@
 const express = require("express");
 const mysql = require("mysql2");
 const app = express();
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
+const { connect } = require("http2");
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -26,7 +27,20 @@ connection.connect(function(err){
 
 // Consulta de Bloco
 
-app.get("/cadastroBloco", function(req, res){
+app.get("/", function(req, res){
+    const select = "Select * from Bloco"
+
+    connection.query(select, function(err, results){
+        if (err){
+            return res.status(500).send('Erro ao buscar dados')
+        }
+
+        res.render("index", { rows: results })
+    });
+
+});
+
+app.get("/create", function(req, res){
     res.render("create")
 });
 
@@ -40,19 +54,6 @@ app.get("/edit/:idbloco", function(req, res){
 
         res.render('edit', { bloco: results[0] });
     });
-});
-
-app.get("/", function(req, res){
-    const select = "Select * from Bloco"
-
-    connection.query(select, function(err, results){
-        if (err){
-            return res.status(500).send('Erro ao buscar dados')
-        }
-
-        res.render("index", { rows: results })
-    });
-
 });
 
 app.get("/delete/:idbloco", function(req, res){
@@ -73,6 +74,25 @@ app.get("/delete/:idbloco", function(req, res){
     });
 
 });
+
+
+app.post("/edit/:idbloco", function(req, res){
+    const idbloco = req.params.idbloco;
+    const descricao = req.body.descricao;
+    const qtdApt = req.body.qtdApt;
+
+    const update = "UPDATE bloco SET descricao = ?, qtdApt = ? WHERE idbloco = ?";
+ 
+    connection.query(update, [descricao, qtdApt, idbloco], function(err, result){
+        if(!err){
+            console.log("Bloco editado com sucesso!");
+            res.redirect('/'); 
+        }else{
+            console.log("Erro ao editar o bloco ", err);
+            res.send("Erro")
+        }
+    });
+}); 
 
 app.post("/search", function(req, res){
     const search = req.body.pesquisa
@@ -130,24 +150,6 @@ app.post("/create", function(req, res){
 
 
 
-app.post("/edit/:idbloco", function(req, res){
-    const idbloco = req.params.idbloco;
-    const descricao = req.body.descricao;
-    const qtdApt = req.body.qtdApt;
-
-    const update = "UPDATE bloco SET descricao = ?, qtdApt = ? WHERE idbloco = ?";
- 
-    connection.query(update, [descricao, qtdApt, idbloco], function(err, result){
-        if(!err){
-            console.log("Bloco editado com sucesso!");
-            res.redirect('/'); 
-        }else{
-            console.log("Erro ao editar o bloco ", err);
-            res.send("Erro")
-        }
-    });
-}); 
-
 // Consulta de apartamentos
 
 app.get("/apartment", function(req, res){
@@ -173,7 +175,7 @@ app.get("/apartment/create", function(req, res){
         }
 
         res.render("createApartment", {rows: result})
-    })
+    });
 
 });
 
@@ -217,6 +219,7 @@ app.get("/apartment/delete/:idapartamento", function(req, res){
 
 });
 
+
 app.post("/apartment/edit/:idapartamento", function(req, res){
     const idapartamento = req.params.idapartamento;
     const numApt = req.body.numApt;
@@ -235,7 +238,7 @@ app.post("/apartment/edit/:idapartamento", function(req, res){
     });
 }); 
 
-app.post("/searchApt", function(req, res){
+app.post("/apartment/search", function(req, res){
     const search = req.body.pesquisa
     const query = "SELECT b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco where numeroApt = ?"
 
@@ -295,6 +298,319 @@ app.post("/apartment/create", function(req, res){
     });
 });
 
+// Consulta de moradores
+
+app.get("/residents", function(req, res){
+    const queryResidents = "SELECT Morador.idmorador AS idmorador, Morador.cpf, Morador.nome, Apartamento.numeroApt AS apartamento, Bloco.descricao AS bloco FROM Morador JOIN Apartamento ON Morador.apt_id = Apartamento.idapartamento JOIN Bloco ON Morador.bloco_id = Bloco.idbloco ORDER BY bloco;"
+
+    connection.query(queryResidents, function(err, results){
+        if(err){
+            return res.status(500).send('Erro ao buscar dados')
+        }
+
+        res.render("residents", { rows: results })
+    });
+});
+
+app.get("/residents/create", function(req, res) {
+    const blocoSelecionado = req.query.idbloco; 
+
+    const showblocos = "SELECT idbloco, descricao FROM bloco";
+    const showApt = "SELECT idapartamento, numeroApt FROM Apartamento WHERE bloco_id = ?";
+
+    connection.query(showblocos, function(err, blocos) {
+        if (err) {
+            return res.status(500).send('Erro ao buscar blocos');
+        }
+
+        if (blocoSelecionado) {
+            connection.query(showApt, [blocoSelecionado], function(err, apartamentos) {
+                if (err) {
+                    return res.status(500).send('Erro ao buscar apartamentos');
+                }
+
+                res.render("createResident", {
+                    blocos: blocos,
+                    apartamentos: apartamentos,
+                    blocoSelecionado: blocoSelecionado
+                });
+            });
+        } else {
+            res.render("createResident", {
+                blocos: blocos,
+                apartamentos: [],
+                blocoSelecionado: null
+            });
+        }
+    });
+});
+app.get("/residents/delete/:idmorador", function(req,res){
+    const idmorador = req.params.idmorador;
+
+    const excluir = "DELETE FROM Morador where idmorador = ?" 
+
+    connection.query(excluir, [idmorador], function(err, result){
+        if(err){
+            console.error("Erro ao excluir o morador: ", err);
+            res.status(500).send('Erro interno ao excluir morador.');
+            return;
+        }
+
+        
+        console.log("Morador excluido com sucesso!");
+        res.redirect('/residents');
+    });
+});
+app.get("/residents/edit/:idmorador", function(req, res){
+    const idmorador = req.params.idmorador;
+    const blocoSelecionado = req.query.idbloco; 
+
+    const queryMorador = 'SELECT * FROM Morador WHERE idmorador = ?';
+    const showblocos = "SELECT idbloco, descricao FROM bloco";
+    const showApt = "SELECT idapartamento, numeroApt FROM Apartamento WHERE bloco_id = ?";
+
+
+    connection.query(queryMorador, [idmorador], function(err, morador){
+        if (err) return res.status(500).send('Erro ao buscar o morador');
+        if (morador.length === 0) return res.status(404).send('morador não encontrado');
+     
+        const moradorData = morador[0];   
+     
+        connection.query(showblocos, function(err, blocos) {
+            if (err) {
+                return res.status(500).send('Erro ao buscar blocos');
+            }
+     
+            if (blocoSelecionado) {
+                connection.query(showApt, [blocoSelecionado], function(err, apartamentos) {
+                    if (err) {
+                        return res.status(500).send('Erro ao buscar apartamentos');
+                    }
+     
+                    res.render("editResident", {
+                        morador: moradorData,  
+                        blocos: blocos,
+                        apartamentos: apartamentos,
+                        blocoSelecionado: blocoSelecionado
+                    });
+                });
+            } else {
+                res.render("editResident", {
+                    morador: moradorData, 
+                    blocos: blocos,
+                    apartamentos: [],
+                    blocoSelecionado: null
+                });
+            }
+        });
+     });
+     
+});
+
+
+app.post("/residents/edit/:idmorador", function(req, res){
+    const idmorador = req.params.idmorador;
+    const cpf = req.body.cpf
+    const name = req.body.name
+    const apartment = req.body.apartment
+    const block = req.body.idbloco
+    const fone = req.body.fone
+    const manager = req.body.manager
+    const owner = req.body.owner
+    const car = req.body.car
+    const carSpaces = req.body.carSpaces || null
+    const numSpaces = req.body.numSpaces || null
+    const plate = req.body.plate
+    const brand = req.body.brand
+    const model = req.body.model
+
+    const update = `
+    UPDATE morador
+    SET cpf = ?, nome = ?, apt_id = ?, bloco_id = ?, telefone = ?,
+        responsavel_apt = ?, proprietario_apt = ?, possui_veiculo = ?,
+        qtd_vagas = ?, num_vaga = ?
+    WHERE idmorador = ?
+  `; 
+
+  const values = [cpf, name, apartment, block, fone, manager, owner, car, carSpaces, numSpaces, idmorador];
+    connection.query(update, values, function(err, morador){
+        if(err){
+            console.log("Não foi possível inserir os dados:", err);
+            return res.send(`
+                <html>
+                <head>
+                <link rel="stylesheet" href="/style.css">
+                </head>
+                <h1>ERRO</h1>
+                <h2>Dados inseridos não estão conferindo.<h2>
+                <p>Para que um morador seja editado com sucesso, siga os passos: </p><br>
+                <p>- NÃO insira um CPF repetido (que não o dele próprio); </p><br>
+                <p>- NÃO adicione mais de um proprietário ao mesmo apartamento; </p><br>
+                
+                <a href="/residents/">Voltar</a>
+                </html>
+                `);
+        }
+
+        const idmorador = morador.insertId;
+
+        if(car == 1 && plate && brand && model){
+
+            const updateCar= "UPDATE veiculoSET placa = ?, marca = ?, modelo = ? WHERE morador_id = ?";
+
+            const valuesCar = [plate,brand,model,idmorador];
+
+            connection.query(updateCar, [valuesCar], function(error, car){
+                if(error){
+                    console.log("Não foi possível inserir os dados:", err);
+                console.log("Morador e veículo editados com sucesso")
+            res.redirect("/residents")
+
+        }else{
+            console.log("Morador editado com sucesso")
+            res.redirect("/residents")
+        }
+            });
+        }
+    });
+}); 
+app.post("/residents/search", function(req, res){
+    const name = req.body.name
+    const query = "SELECT Morador.idmorador AS id, Morador.cpf, Morador.nome, Apartamento.numeroApt AS apartamento, Bloco.descricao AS bloco FROM Morador JOIN Apartamento ON Morador.apt_id = Apartamento.idapartamento JOIN Bloco ON Morador.bloco_id = Bloco.idbloco WHERE Morador.nome LIKE CONCAT('%', ?, '%') ORDER BY bloco"
+
+    connection.query(query, [name], function(err, results){
+        if(err){
+            console.log(err)
+            return res.status(500).send('Erro ao buscar dados')
+            
+        }if(results.length === 0){
+            return res.status(404).send(`
+                <!DOCTYPE html>
+                <html lang="pt-br">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Morador não existentente</title>
+                    <link rel="stylesheet" href="/style.css">
+
+                </head>
+                <h1>Morador não existente</h1>
+                <h2>Insira um morador válido</h2>
+
+                <a href="javascript:history.back()">Voltar</a>
+                </html>
+                `
+    )}
+
+        res.render("residents", { rows: results })
+    })
+});
+app.post("/residents/create", function(req,res){
+    const cpf = req.body.cpf
+    const name = req.body.name
+    const apartment = req.body.apartment
+    const block = req.body.idbloco
+    const fone = req.body.fone
+    const manager = req.body.manager
+    const owner = req.body.owner
+    const car = req.body.car
+    const carSpaces = req.body.carSpaces || null
+    const numSpaces = req.body.numSpaces || null
+    const plate = req.body.plate
+    const brand = req.body.brand
+    const model = req.body.model
+    
+
+    const insert = "INSERT INTO Morador (cpf, nome, apt_id, bloco_id, telefone, responsavel_apt, proprietario_apt, possui_veiculo, qtd_vagas, num_vaga) VALUES (?)"
+    const values = [cpf, name, apartment, block ,fone, manager, owner, car, carSpaces, numSpaces]
+    
+    connection.query(insert, [values], function(err, morador){
+        if(err){
+            console.log("Não foi possível inserir os dados:", err);
+            return res.send(`
+                <html>
+                <head>
+                <link rel="stylesheet" href="/style.css">
+                </head>
+                <h1>ERRO</h1>
+                <h2>Dados inseridos não estão conferindo.<h2>
+                <p>Para que um morador seja cadastrao com sucesso, siga os passos: </p><br>
+                <p>- NÃO insira um CPF repetido; </p><br>
+                <p>- NÃO adicione mais de um proprietário ao mesmo apartamento; </p><br>
+                
+                <a href="/residents/create">Voltar</a>
+                </html>
+                `);
+        }
+
+        const idmorador = morador.insertId;
+
+        if(car == 1 && plate && brand && model){
+
+            const insertCar = "INSERT INTO Veiculo (placa, marca, modelo, morador_id) VALUES (?)"
+            const valuesCar= [plate, brand, model, idmorador]
+
+            connection.query(insertCar, [valuesCar], function(error, car){
+                if(error){
+                    console.log("Não foi possível inserir os dados:", err);
+                }
+            });
+
+            console.log("Morador e veículo cadastrados com sucesso")
+            res.redirect("/residents")
+
+        }else{
+            console.log("Morador cadastrado com sucesso")
+            res.redirect("/residents")
+        }
+
+        
+    });
+
+
+
+});
+
+// Consulta de pagamentos
+
+app.get("/payment", function(req, res){
+    const blocoSelecionado = req.query.idbloco; 
+
+    const showblocos = "SELECT idbloco, descricao FROM bloco";
+    const showApt = "SELECT idapartamento, numeroApt FROM Apartamento WHERE bloco_id = ?";
+
+    connection.query(showblocos, function(err, blocos) {
+        if (err) {
+            return res.status(500).send('Erro ao buscar blocos');
+        }
+
+        if (blocoSelecionado) {
+            connection.query(showApt, [blocoSelecionado], function(err, apartamentos) {
+                if (err) {
+                    return res.status(500).send('Erro ao buscar apartamentos');
+                }
+
+                res.render("payment", {
+                    blocos: blocos,
+                    apartamentos: apartamentos,
+                    blocoSelecionado: blocoSelecionado
+                });
+            });
+        } else {
+            res.render("payment", {
+                blocos: blocos,
+                apartamentos: [],
+                blocoSelecionado: null
+            });
+        }
+    });
+
+
+
+})
+
+
+// Serividor rodadno
 app.listen(8083, function(){
     console.log("Servidor rodando na URL http://localhost:8083")
     });

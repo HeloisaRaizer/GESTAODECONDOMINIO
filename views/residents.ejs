@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Moradores</title>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <h1>Condomínio</h1>
+
+    <h2>Pesquisar moradores</h2>
+    <form method="post" action="/residents/search">
+        <input type="text" name="name" placeholder="ex: João" required>
+        <button type="submit" value="Entrar">Pesquisar</button>
+    </form>
+
+
+    <table >
+        <tr>
+            <th>CPF</th>
+            <th>Nome</th>
+            <th>Apartamento</th>
+            <th>Bloco</th>
+            <th>Ações</th>
+        </tr>
+        <% rows.forEach(row => { %>
+            <tr>
+                <td><%= row.cpf %></td>
+                <td><%= row.nome %></td>
+                <td><%= row.apartamento %></td>
+                <td><%= row.bloco %></td>
+                <td>
+                    <a href="/residents/delete/<%= row.idmorador %>">Excluir</a>
+                    <a href="/residents/edit/<%= row.idmorador %>">Editar</a>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+
+    <a href="javascript:history.back()">Voltar</a>
+    <a href="/residents/create">Cadastar novo morador</a>
+
+</body>
+</html>

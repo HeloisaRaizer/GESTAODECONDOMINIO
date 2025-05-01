@@ -28,6 +28,17 @@ CREATE TABLE Morador (
     FOREIGN KEY (apt_id) REFERENCES Apartamento(idapartamento),
     FOREIGN KEY (bloco_id) REFERENCES Bloco(idbloco)
 );
+ALTER TABLE Morador
+ADD responsavel_apt TINYINT(1) NOT NULL DEFAULT 2, -- 1 = true, 2 = false
+ADD proprietario_apt TINYINT(1) NOT NULL DEFAULT 2,
+ADD possui_veiculo TINYINT(1) NOT NULL DEFAULT 2,
+ADD qtd_vagas INT DEFAULT NULL,
+ADD num_vaga INT DEFAULT NULL;
+ALTER TABLE morador
+ADD CONSTRAINT unique_cpf UNIQUE (cpf);
+ALTER TABLE Morador
+ADD CONSTRAINT unico_proprietario_por_apt UNIQUE (apt_id, proprietario_apt);
+
 
 -- tabela pagamento
 
@@ -44,12 +55,22 @@ CREATE TABLE Pagamento (
     FOREIGN KEY (morador_id) REFERENCES Morador(idmorador)
 );
 
--- tabela manutençã
+-- tabela manutenção
 CREATE TABLE Manutencao (
     idmanutencao INT AUTO_INCREMENT PRIMARY KEY,
     tipoManutencao VARCHAR(100) NOT NULL,
     data DATE NOT NULL,
     local VARCHAR(255)
+);
+
+-- tabela veiculo
+CREATE TABLE Veiculo (
+    idveiculo INT AUTO_INCREMENT PRIMARY KEY,
+    placa VARCHAR(10) NOT NULL,
+    marca VARCHAR(50),
+    modelo VARCHAR(50),
+    morador_id INT NOT NULL,
+    FOREIGN KEY (morador_id) REFERENCES Morador(idmorador)
 );
 
 
@@ -91,9 +112,19 @@ insert into Apartamento(bloco_id, numeroApt) values (1, "101");
 insert into Apartamento(bloco_id, numeroApt) values (2, "101");
 insert into Apartamento(bloco_id, numeroApt) values (1, "102");
 
+INSERT INTO Morador (cpf, nome, apt_id, bloco_id, telefone)
+VALUES 
+('123.456.789-00', 'João Silva', 3, 1, '(47) 99999-1111'),
+('987.654.321-00', 'Maria Souza', 10, 2, '(47) 98888-2222'),
+('456.789.123-00', 'Carlos Oliveira', 7, 1, '(47) 97777-3333');
+-- ------------------
 
 select * from bloco;
 select * from Apartamento;
+select * from morador;
+select * from veiculo;
+
+DELETE FROM Apartamento where idapartamento = 9;
 
 SELECT * FROM bloco where descricao = "Bloco A";
 
@@ -108,6 +139,9 @@ SELECT * FROM bloco where descricao = "Bloco A";
   SELECT  b.descricao, a.numeroApt FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
   
 SELECT  b.descricao FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
+
+SELECT Morador.idmorador AS id, Morador.cpf, Morador.nome, Apartamento.numeroApt AS apartamento, Bloco.descricao AS bloco FROM Morador JOIN Apartamento ON Morador.apt_id = Apartamento.idapartamento JOIN Bloco ON Morador.bloco_id = Bloco.idbloco ORDER BY bloco;
+
 
 
 CREATE TABLE Apartamento (

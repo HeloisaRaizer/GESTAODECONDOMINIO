@@ -34,4 +34,32 @@ local => varchar(255)
 
 
 
+++++++++++++++++++++++++++++++++++
+
+app.get("/residents/create", function(req,res){
+    const idbloco = req.body.idbloco
+
+    const showApt = "SELECT idapartamento, numeroApt FROM Apartamento WHERE bloco_id = ?"
+    const showblocos = "SELECT idbloco, descricao FROM bloco"
+
+    connection.query(showblocos, function(err, blocos){
+        if(err){
+            return res.status(500).send('Erro ao buscar dados')
+        }
+        
+    
+    connection.query(showApt, [idbloco], function(err, apartamentos){
+        if(err){
+            return res.status(500).send('Erro ao buscar dados')
+        }
+        
+        res.render("createResident", {
+            blocos: blocos,
+            apartamentos: apartamentos
+        });
+    });
+});
+});
+
+
 
