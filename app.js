@@ -66,6 +66,8 @@ app.get("/delete/:idbloco", function(req, res){
             console.error("Erro ao excluir o bloco: ", err);
             res.status(500).send('Erro interno ao excluir o bloco.');
             return;
+        }else{
+            
         }
 
         

@@ -34,7 +34,9 @@
                 <td><%= row.apartamento %></td>
                 <td><%= row.bloco %></td>
                 <td>
-                    <a href="/residents/delete/<%= row.idmorador %>">Excluir</a>
+                    <form action="/delete/<%= row.idmorador %>" method="GET" onsubmit="return confirmarExclusao()" style="display:inline;">
+                        <button type="submit">Excluir</button>
+                    </form>
                     <a href="/residents/edit/<%= row.idmorador %>">Editar</a>
                 </td>
             </tr>
@@ -44,5 +46,10 @@
     <a href="javascript:history.back()">Voltar</a>
     <a href="/residents/create">Cadastar novo morador</a>
 
+    <script>
+        function confirmarExclusao() {
+        return confirm("Tem certeza que deseja excluir este morador?");
+        }
+        </script>
 </body>
 </html>
