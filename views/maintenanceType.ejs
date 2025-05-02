@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Condomínio - Cadastrar Tipo de Manutenção</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <%- include('partials/navbar') %>
+  <h1>Condomínio</h1>
+  <h2>Cadastrar Tipo de Manutenção</h2>
+
+  <form action="/maintenance/registerType" method="POST">
+    <label for="descricao">Nome da manutenção:</label>
+    <input type="text" id="name" name="name" required>
+    <br><br>
+    <button type="submit">Cadastrar</button>
+
+  </form>
+  <a onclick="window.history.back()">Voltar</a>
+</body>
+
+</html>

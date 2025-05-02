@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Condomínio - Cadastrar Manutenção</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+  <h1>Condomínio</h1>
+  <h2>Cadastrar Manutenção</h2>
+
+  <form action="/maintenance/register" method="POST">
+    <label for="tipo_id">Tipo de manutenção:</label>
+    <select name="tipo_id" id="tipo_id" required>
+        <option value="">Selecione um tipo</option>
+        <% row.forEach(row => { %>
+            <option value="<%= row.idtipo %>"><%= row.nome %></option> 
+        <% }); %>
+    </select>
+    <br><br>
+    
+    <label for="date">Data:</label>
+    <input type="text" id="date" name="date" placeholder="dd/mm/aaaa" required>
+    <br><br>
+
+    <label for="local">Local:</label>
+    <input type="text" id="local" name="local" required>
+    <br><br>
+
+    <button type="submit">Cadastrar</button>
+    
+  </form>
+  <a onclick="window.history.back()">Voltar</a>
+</body>
+</html>

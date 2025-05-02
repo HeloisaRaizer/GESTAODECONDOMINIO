@@ -643,7 +643,6 @@ app.get("/payment", function(req, res){
     });
 });
 
-
 app.post("/payment/register", function(req, res){
     console.log(req.body)
     const { apartamento_id, morador_id, idreferencia } = req.body;
@@ -660,6 +659,70 @@ app.post("/payment/register", function(req, res){
     })
 
 });
+
+// Manutenção
+
+app.get("/maintenance", function(req,res){
+    const query = "SELECT * FROM tipoManutencao"
+
+    connection.query(query, function(err, results){
+        if(err){
+            console.log("Erro ao buscar dados", err)
+        }
+        res.render("maintenance", {row: results})
+    })
+
+
+    
+});
+
+app.get("/maintenance/options", function(req,res){
+    res.render("maintenanceOptions")
+});
+
+app.get("/maintenance/type", function(req,res){
+    res.render("maintenanceType")
+});
+
+
+app.post("/maintenance/register", function(req, res){
+    const tipo_id = parseInt(req.body.tipo_id, 10);
+    const date = req.body.date
+    const local = req.body.local
+
+    const insert = "INSERT INTO Manutencao (tipo_id, data, local) VALUES (?,?,?)"
+    console.log(req.body)
+    if (isNaN(tipo_id)) {
+            console.log("Erro: tipo_id inválido.");
+            return res.status(400).send("Tipo de manutenção inválido.");
+        }
+        
+    connection.query(insert, [tipo_id, date, local], function(err, results){
+        if(err){
+            if(err){
+                console.log("Não foi possível inserir os dados:", err);
+            }
+        }
+
+        console.log("Tipo de manutenção inserida com sucesso")
+        res.redirect("/maintenance/options")
+    });
+});
+
+app.post("/maintenance/registerType", function(req, res){
+    const name = req.body.name
+
+    const insert = "INSERT INTO tipoManutencao (nome) VALUE (?)"
+
+    connection.query(insert, name, function(err, type){
+        if(err){
+            console.log("Erro ao enviar dados", err)
+        }
+
+        console.log("Tipo de manutenção cadastrado com sucesso")
+        res.redirect("/maintenance/options")
+    })
+})
 
 // Serividor rodadno
 app.listen(8083, function(){

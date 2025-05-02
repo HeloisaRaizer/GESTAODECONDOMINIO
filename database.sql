@@ -46,21 +46,35 @@ CREATE TABLE Pagamento (
     idpagamento INT AUTO_INCREMENT PRIMARY KEY,
     apartamento_id INT NOT NULL,
     morador_id INT NOT NULL,
-    mes_ano DATE NOT NULL,
-    valor FLOAT NOT NULL,
-    vencimento DATE NOT NULL,
     FOREIGN KEY (apartamento_id) REFERENCES Apartamento(idapartamento),
     FOREIGN KEY (morador_id) REFERENCES Morador(idmorador)
 );ALTER TABLE Pagamento
-DROP COLUMN cpf,
-DROP COLUMN telefone;
-
+ADD COLUMN referencia_id INT NOT NULL,
+ADD CONSTRAINT fk_referencia
+FOREIGN KEY (referencia_id) REFERENCES Referencia(idreferencia);
 -- tabela manutenção
 CREATE TABLE Manutencao (
     idmanutencao INT AUTO_INCREMENT PRIMARY KEY,
     tipoManutencao VARCHAR(100) NOT NULL,
+	tipo_id INT NOT NULL,
     data DATE NOT NULL,
     local VARCHAR(255)
+);ALTER TABLE manutencao
+ADD COLUMN tipo_id INT NOT NULL,
+ADD CONSTRAINT fk_tipoManitencao
+FOREIGN KEY (tipo_id) REFERENCES tipoManutencao(idtipo);
+
+ALTER TABLE manutencao
+MODIFY COLUMN data VARCHAR(10);
+
+ALTER TABLE manutencao
+DROP COLUMN tipoManutencao;
+
+
+
+CREATE TABLE tipoManutencao (
+idtipo INT AUTO_INCREMENT PRIMARY KEY,
+nome varchar(255)
 );
 
 -- tabela veiculo
@@ -73,7 +87,17 @@ CREATE TABLE Veiculo (
     FOREIGN KEY (morador_id) REFERENCES Morador(idmorador)
 );
 
+-- tabela referencia
+CREATE TABLE Referencia (
+    idreferencia INT AUTO_INCREMENT PRIMARY KEY,
+    mes INT NOT NULL,            
+    ano INT NOT NULL,            
+    vencimento DATE NOT NULL,    
+    valor DECIMAL(10,2) NOT NULL 
+);
 
+
+-- trigger 
 DELIMITER //
 
 CREATE TRIGGER trg_atualiza_qtdApt_after_insert
@@ -112,29 +136,53 @@ insert into Apartamento(bloco_id, numeroApt) values (1, "101");
 insert into Apartamento(bloco_id, numeroApt) values (2, "101");
 insert into Apartamento(bloco_id, numeroApt) values (1, "102");
 
+insert into tipomanutencao(nome) value ("Pintura");
+
 INSERT INTO Morador (cpf, nome, apt_id, bloco_id, telefone)
 VALUES 
 ('123.456.789-00', 'João Silva', 3, 1, '(47) 99999-1111'),
 ('987.654.321-00', 'Maria Souza', 10, 2, '(47) 98888-2222'),
 ('456.789.123-00', 'Carlos Oliveira', 7, 1, '(47) 97777-3333');
+
+INSERT INTO Referencia (mes, ano, vencimento, valor) VALUES
+(1, 2025, '2025-02-10', 550.00),
+(2, 2025, '2025-03-10', 550.00),
+(3, 2025, '2025-04-10', 550.00),
+(4, 2025, '2025-05-10', 550.00),
+(5, 2025, '2025-06-10', 550.00),
+(6, 2025, '2025-07-10', 550.00),
+(7, 2025, '2025-08-10', 550.00),
+(8, 2025, '2025-09-10', 550.00),
+(9, 2025, '2025-10-10', 550.00),
+(10, 2025, '2025-11-10', 550.00),
+(11, 2025, '2025-12-10', 550.00),
+(12, 2025, '2026-01-10', 550.00);
 -- ------------------
 
+-- select
 select * from bloco;
 select * from Apartamento;
 select * from morador;
 select * from veiculo;
+select * from referencia;
+select * from pagamento;
+select * from manutencao;
+select * from tipoManutencao;
 SELECT idmorador, cpf, nome, apt_id, telefone FROM Morador WHERE apt_id = 3;
+SELECT * FROM bloco where descricao = "Bloco A";
+SELECT * FROM referencia WHERE mes = 5 AND ano = 2025;
 
 
+-- delete
 DELETE FROM Apartamento where idapartamento = 9;
 
 DELETE FROM pagamento;
 DELETE FROM morador;
 
-SELECT * FROM bloco where descricao = "Bloco A";
 
 
 
+-- JOIN
 
  SELECT a.idapartamento, a.numeroApt, b.descricao AS Bloco
   FROM Apartamento a
@@ -148,12 +196,6 @@ SELECT  b.descricao FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
 SELECT Morador.idmorador AS id, Morador.cpf, Morador.nome, Apartamento.numeroApt AS apartamento, Bloco.descricao AS bloco FROM Morador JOIN Apartamento ON Morador.apt_id = Apartamento.idapartamento JOIN Bloco ON Morador.bloco_id = Bloco.idbloco ORDER BY bloco;
 
 
+SELECT m.idmanutencao,tm.nome AS tipoManutencaoNome FROM Manutencao m JOIN TipoManutencao tm ON m.tipo_id = tm.idtipo;
 
-CREATE TABLE Apartamento (
-    idapartamento INT AUTO_INCREMENT PRIMARY KEY,
-    bloco_id INT NOT NULL,
-    numeroApt VARCHAR(10) NOT NULL,
-    FOREIGN KEY (bloco_id) REFERENCES Bloco(idbloco)
-);
-ALTER TABLE Apartamento
-ADD CONSTRAINT unico_numero_por_bloco UNIQUE (bloco_id, numeroApt);
+
