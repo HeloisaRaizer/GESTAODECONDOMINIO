@@ -2,22 +2,88 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Pagamento</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <%- include('partials/navbar') %>
+<%- include('partials/navbar') %>
 
-    <h1>Registrar Pagamento</h1>
+<h1>Registrar Pagamento</h1>
 
-    <form action="/payment" method="POST">
- 
-        <button type="submit">Cadastrar</button>
+<!-- FORM BLOCO -->
+<form action="/payment" method="GET">
+    <label for="idbloco">Selecione o Bloco:</label>
+    <select name="idbloco" id="idbloco" required onchange="this.form.submit()">
+        <option value="">Selecione um bloco</option>
+        <% blocos.forEach(row => { %>
+            <option value="<%= row.idbloco %>" <%= blocoSelecionado == row.idbloco ? 'selected' : '' %>><%= row.descricao %></option>
+        <% }); %>
+    </select>
+</form>
 
+<!-- FORM APARTAMENTO -->
+<% if (apartamentos.length > 0) { %>
+    <form action="/payment" method="GET">
+        <input type="hidden" name="mesHidden" value="<%= mesAtual %>">
+        <input type="hidden" name="anoHidden" value="<%= anoAtual %>">        
+        <input type="hidden" name="idbloco" value="<%= blocoSelecionado %>">
+
+        <label for="idapartamento">Selecione o Apartamento:</label>
+        <select name="idapartamento" id="idapartamento" required onchange="this.form.submit()">
+            <option value="">Selecione um apartamento</option>
+            <% apartamentos.forEach(row => { %>
+                <option value="<%= row.idapartamento %>" <%= aptSelecionado == row.idapartamento ? 'selected' : '' %>><%= row.numeroApt %></option>
+            <% }); %>
+        </select>
     </form>
+<% } %>
 
-    <a href="javascript:history.back()">Voltar</a>
+
+<form action="/payment/register" method="post">
+    <input type="hidden" name="apartamento_id" value="<%= aptSelecionado %>">
+    <input type="hidden" name="morador_id" value="<%= morador ? morador.idmorador : '' %>">
+
+    <% if (reference && reference.length > 0) { %>
+        <input type="hidden" name="idreferencia" value="<%= reference[0].idreferencia %>">
+        <% } %>
+        
+<% if (morador) { %>
+    <h2>Dados do Morador</h2><br>
+    <p><strong>CPF:</strong> <%= morador.cpf %></p><br>
+    <p><strong>Nome:</strong> <%= morador.nome %></p><br>
+    <p><strong>Telefone:</strong> <%= morador.telefone %></p><br>
+
+    <h2>Dados de pagamento: </h2><br>
+
+    <label for="date">Mês: </label>
+    <span><%= mesAtual %></span>
+    
+    <label for="date">Ano: </label>
+    <span><%= anoAtual %></span>
+    
+    <h1>Referências encontradas</h1>
+    <ul>
+        <% if (reference && reference.length > 0) { %>
+            <% reference.forEach(function(ref) { %>
+                  <strong>Vencimento:</strong> <%= ref.vencimento.toLocaleDateString('pt-BR') %> <br><br>
+                  <strong>Valor:</strong> R$<%= ref.valor %>
+            <% }) %>
+        <% } else { %>
+            <li>Nenhuma referência encontrada.</li>
+        <% } %>
+    </ul>
+
+<% }else{ %>
+    <p>Morador não encontrado</p>
+    <%} %>
+
+    <button type="submit">Cadastrar pagamento</button>
+</form>
+
+
+<a href="javascript:history.back()">Voltar</a>
+
+
 
 </body>
 </html>

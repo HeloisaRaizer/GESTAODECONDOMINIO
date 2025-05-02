@@ -45,15 +45,15 @@ ADD CONSTRAINT unico_proprietario_por_apt UNIQUE (apt_id, proprietario_apt);
 CREATE TABLE Pagamento (
     idpagamento INT AUTO_INCREMENT PRIMARY KEY,
     apartamento_id INT NOT NULL,
-    cpf VARCHAR(14) NOT NULL,
     morador_id INT NOT NULL,
-    telefone VARCHAR(20),
     mes_ano DATE NOT NULL,
     valor FLOAT NOT NULL,
     vencimento DATE NOT NULL,
     FOREIGN KEY (apartamento_id) REFERENCES Apartamento(idapartamento),
     FOREIGN KEY (morador_id) REFERENCES Morador(idmorador)
-);
+);ALTER TABLE Pagamento
+DROP COLUMN cpf,
+DROP COLUMN telefone;
 
 -- tabela manutenção
 CREATE TABLE Manutencao (
@@ -123,8 +123,13 @@ select * from bloco;
 select * from Apartamento;
 select * from morador;
 select * from veiculo;
+SELECT idmorador, cpf, nome, apt_id, telefone FROM Morador WHERE apt_id = 3;
+
 
 DELETE FROM Apartamento where idapartamento = 9;
+
+DELETE FROM pagamento;
+DELETE FROM morador;
 
 SELECT * FROM bloco where descricao = "Bloco A";
 

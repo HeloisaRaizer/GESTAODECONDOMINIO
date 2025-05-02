@@ -575,40 +575,91 @@ app.post("/residents/create", function(req,res){
 
 app.get("/payment", function(req, res){
     const blocoSelecionado = req.query.idbloco; 
+    const aptSelecionado = req.query.idapartamento;
+    const Mes = req.query.mesHidden || String(new Date().getMonth() + 1).padStart(2, '0');
+    const Ano = req.query.anoHidden || new Date().getFullYear();
 
     const showblocos = "SELECT idbloco, descricao FROM bloco";
     const showApt = "SELECT idapartamento, numeroApt FROM Apartamento WHERE bloco_id = ?";
+    const showResident = "SELECT idmorador, cpf, nome, apt_id, telefone FROM Morador WHERE apt_id = ?";
+    const references = "SELECT idreferencia, vencimento, valor FROM referencia WHERE mes = ? AND ano = ?";
 
     connection.query(showblocos, function(err, blocos) {
-        if (err) {
-            return res.status(500).send('Erro ao buscar blocos');
-        }
+        if (err) return res.status(500).send('Erro ao buscar blocos');
 
         if (blocoSelecionado) {
             connection.query(showApt, [blocoSelecionado], function(err, apartamentos) {
-                if (err) {
-                    return res.status(500).send('Erro ao buscar apartamentos');
-                }
+                if (err) return res.status(500).send('Erro ao buscar apartamentos');
 
-                res.render("payment", {
-                    blocos: blocos,
-                    apartamentos: apartamentos,
-                    blocoSelecionado: blocoSelecionado
-                });
+                if (aptSelecionado) {
+                    connection.query(showResident, [aptSelecionado], function(err, morador) {
+                        if (err) return res.status(500).send('Erro ao buscar morador');
+
+                        const moradorData = morador.length > 0 ? morador[0] : null;
+
+                        connection.query(references, [Mes, Ano], function(err, reference){
+                            if(err){
+                                console.log("erro ao buscar dados", err);
+                                return res.render("payment", { reference: [], mesAtual: Mes, anoAtual: Ano });
+                            }
+
+                            res.render("payment", {
+                                morador: moradorData,
+                                blocos: blocos,
+                                apartamentos: apartamentos,
+                                blocoSelecionado: blocoSelecionado,
+                                aptSelecionado: aptSelecionado,
+                                reference: reference,
+                                mesAtual: Mes,
+                                anoAtual: Ano
+                            });
+                        });
+                    });
+                } else {
+                    res.render("payment", {
+                        morador: null,
+                        blocos: blocos,
+                        apartamentos: apartamentos,
+                        blocoSelecionado: blocoSelecionado,
+                        aptSelecionado: null,
+                        reference: [],
+                        mesAtual: Mes,
+                        anoAtual: Ano
+                    });
+                }
             });
         } else {
             res.render("payment", {
+                morador: null,
                 blocos: blocos,
                 apartamentos: [],
-                blocoSelecionado: null
+                blocoSelecionado: null,
+                aptSelecionado: null,
+                reference: [],
+                mesAtual: Mes,
+                anoAtual: Ano
             });
         }
     });
+});
 
 
+app.post("/payment/register", function(req, res){
+    console.log(req.body)
+    const { apartamento_id, morador_id, idreferencia } = req.body;
 
-})
+    const insert = "INSERT INTO pagamento (apartamento_id, morador_id, referencia_id) VALUES (?, ?, ?)";
+    const values = [apartamento_id, morador_id, idreferencia]; 
 
+    connection.query(insert, values, function(err, results){
+        if(err){
+            console.log("Não foi possível inserir os dados:", err);
+        }
+
+        res.redirect("/payment")
+    })
+
+});
 
 // Serividor rodadno
 app.listen(8083, function(){
