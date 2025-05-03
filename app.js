@@ -67,7 +67,7 @@ app.get("/delete/:idbloco", function(req, res){
             res.status(500).send('Erro interno ao excluir o bloco.');
             return;
         }else{
-            
+
         }
 
         
@@ -349,19 +349,27 @@ app.get("/residents/create", function(req, res) {
 app.get("/residents/delete/:idmorador", function(req,res){
     const idmorador = req.params.idmorador;
 
+    const excluirCarro = "DELETE FROM veiculo where morador_id = ?" 
     const excluir = "DELETE FROM Morador where idmorador = ?" 
 
+    connection.query(excluirCarro, [idmorador], function(err, result){
+        if(err){
+            console.error("Erro ao excluir o veiculo: ", err);
+            res.status(500).send('Erro interno ao excluir veiculo.');
+            return;
+        }
+    
     connection.query(excluir, [idmorador], function(err, result){
         if(err){
             console.error("Erro ao excluir o morador: ", err);
             res.status(500).send('Erro interno ao excluir morador.');
             return;
         }
-
         
-        console.log("Morador excluido com sucesso!");
+        console.log("Morador e veiculo excluidos com sucesso!");
         res.redirect('/residents');
     });
+});
 });
 app.get("/residents/edit/:idmorador", function(req, res){
     const idmorador = req.params.idmorador;
@@ -646,7 +654,6 @@ app.get("/payment", function(req, res){
 });
 
 app.post("/payment/register", function(req, res){
-    console.log(req.body)
     const { apartamento_id, morador_id, idreferencia } = req.body;
 
     const insert = "INSERT INTO pagamento (apartamento_id, morador_id, referencia_id) VALUES (?, ?, ?)";
@@ -657,6 +664,7 @@ app.post("/payment/register", function(req, res){
             console.log("Não foi possível inserir os dados:", err);
         }
 
+        console.log("Pagamento registrado com sucesso!")
         res.redirect("/payment")
     })
 
@@ -725,6 +733,37 @@ app.post("/maintenance/registerType", function(req, res){
         res.redirect("/maintenance/options")
     })
 })
+
+//Visão geral
+
+app.get("/statistic", function(req, res){
+    const residentsTotal = "SELECT COUNT(idmorador) FROM morador"
+    const apartmentTotal = "SELECT COUNT(idapartamento) FROM apartamento;"
+    const blocoTotal = "SELECT COUNT(idbloco) FROM bloco"
+
+    connection.query(residentsTotal, function(err, morador){
+        if(err){
+            console.log("Erro ao coletar dados", err)
+
+        }
+        connection.query(apartmentTotal, function(err, apartamento){
+            if(err){
+                console.log("Erro ao coletar dados", err)
+    
+            }
+            connection.query(blocoTotal, function(err, bloco){
+                if(err){
+                    console.log("Erro ao coletar dados", err)
+        
+                }
+        
+                res.render("statistic", {morador: morador, apartamento:apartamento, bloco: bloco })
+            });
+            
+        });
+
+    });
+});
 
 // Serividor rodadno
 app.listen(8083, function(){

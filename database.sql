@@ -172,13 +172,17 @@ SELECT idmorador, cpf, nome, apt_id, telefone FROM Morador WHERE apt_id = 3;
 SELECT * FROM bloco where descricao = "Bloco A";
 SELECT * FROM referencia WHERE mes = 5 AND ano = 2025;
 
+SELECT COUNT(idmorador) FROM morador;
+SELECT COUNT(idapartamento) FROM apartamento;
+SELECT COUNT(idbloco) FROM bloco;
+
 
 -- delete
 DELETE FROM Apartamento where idapartamento = 9;
 
 DELETE FROM pagamento;
 DELETE FROM morador;
-
+DELETE FROM manutencao;
 
 
 
@@ -196,6 +200,6 @@ SELECT  b.descricao FROM Apartamento a JOIN Bloco b ON a.bloco_id = b.idbloco;
 SELECT Morador.idmorador AS id, Morador.cpf, Morador.nome, Apartamento.numeroApt AS apartamento, Bloco.descricao AS bloco FROM Morador JOIN Apartamento ON Morador.apt_id = Apartamento.idapartamento JOIN Bloco ON Morador.bloco_id = Bloco.idbloco ORDER BY bloco;
 
 
-SELECT m.idmanutencao,tm.nome AS tipoManutencaoNome FROM Manutencao m JOIN TipoManutencao tm ON m.tipo_id = tm.idtipo;
+SELECT m.idmanutencao,tm.nome AS tipoManutencaoNome, tm.idtipo FROM Manutencao m JOIN TipoManutencao tm ON m.tipo_id = tm.idtipo;
 
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Visão geral</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+
+        <h1>Estatísticas do Condomínio</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h2>Moradores</h2>
+                <p class="stat-number"><%= morador[0]['COUNT(idmorador)'] %></p>
+            </div>
+
+            <div class="stat-card">
+                <h2>Apartamentos</h2>
+                <p class="stat-number"><%= apartamento[0]['COUNT(idapartamento)'] %></p>
+            </div>
+
+            <div class="stat-card">
+                <h2>Blocos</h2>
+                <p class="stat-number"><%= bloco[0]['COUNT(idbloco)'] %></p>
+            </div>
+        </div>
+</body>
+</html>
