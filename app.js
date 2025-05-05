@@ -738,8 +738,11 @@ app.post("/maintenance/registerType", function(req, res){
 
 app.get("/statistic", function(req, res){
     const residentsTotal = "SELECT COUNT(idmorador) FROM morador"
-    const apartmentTotal = "SELECT COUNT(idapartamento) FROM apartamento;"
+    const apartmentTotal = "SELECT COUNT(idapartamento) FROM apartamento"
     const blocoTotal = "SELECT COUNT(idbloco) FROM bloco"
+    const maintenance = "SELECT COUNT(idmanutencao) FROM manutencao"
+    const payment = "SELECT COUNT(idpagamento) FROM pagamento"
+    const residentsBloco = "SELECT m.idmorador, b.descricao AS nome_bloco FROM morador m JOIN bloco b ON m.bloco_id = b.idbloco;"
 
     connection.query(residentsTotal, function(err, morador){
         if(err){
@@ -756,8 +759,28 @@ app.get("/statistic", function(req, res){
                     console.log("Erro ao coletar dados", err)
         
                 }
+
+                connection.query(maintenance, function(err, manutencao){
+                    if(err){
+                        console.log("Erro ao coletar dados", err)
+            
+                    }
+                    
+                    connection.query(payment, function(err, pagamento){
+                        if(err){
+                            console.log("Erro ao coletar dados", err)
+                
+                        }
+                        connection.query(residentsBloco, function(err, moradorBloco){
+                            if(err){
+                                console.log("Erro ao coletar dados", err)
+                    
+                            }
         
-                res.render("statistic", {morador: morador, apartamento:apartamento, bloco: bloco })
+                res.render("statistic", {morador: morador, apartamento:apartamento, bloco: bloco, manutencao:manutencao, pagamento:pagamento, moradorBloco:moradorBloco })
+            });
+            });
+            });
             });
             
         });

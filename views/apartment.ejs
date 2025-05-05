@@ -30,7 +30,7 @@
                 <td><%= row.descricao %></td>
                 <td><%= row.numeroApt %></td>
                 <td>
-                    <form action="/apartment/delete/<%= row.idapartamento %>" method="GET" onsubmit="return confirmarExclusao()" style="display:inline;">
+                    <form class="form-excluir" action="/apartment/delete/<%= row.idapartamento %>" method="GET" onsubmit="return confirmarExclusao()" style="display:inline;">
                         <button type="submit">Excluir</button>
                     </form>
                     <a href="/apartment/edit/<%= row.idapartamento %>">Editar</a>

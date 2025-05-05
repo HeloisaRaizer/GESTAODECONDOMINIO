@@ -175,6 +175,10 @@ SELECT * FROM referencia WHERE mes = 5 AND ano = 2025;
 SELECT COUNT(idmorador) FROM morador;
 SELECT COUNT(idapartamento) FROM apartamento;
 SELECT COUNT(idbloco) FROM bloco;
+SELECT COUNT(idmanutencao) FROM manutencao;
+
+SELECT idmorador, bloco_id FROM morador;
+
 
 
 -- delete

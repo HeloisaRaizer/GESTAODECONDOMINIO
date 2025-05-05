@@ -45,7 +45,7 @@
 
     <% if (reference && reference.length > 0) { %>
         <input type="hidden" name="idreferencia" value="<%= reference[0].idreferencia %>">
-        <% } %>
+        
         
 <% if (morador) { %>
     <h2>Dados do Proprietário</h2><br>
@@ -53,13 +53,14 @@
     <p><strong>Nome:</strong> <%= morador.nome %></p><br>
     <p><strong>Telefone:</strong> <%= morador.telefone %></p><br>
 
-    <h2>Dados de pagamento: </h2><br>
+    <h2>Dados de pagamento: </h2>
 
     <label for="date">Mês: </label>
     <span><%= mesAtual %></span>
     
     <label for="date">Ano: </label>
     <span><%= anoAtual %></span>
+    <br><br>
     
     <h1>Referências encontradas</h1>
     <ul>
@@ -67,6 +68,7 @@
             <% reference.forEach(function(ref) { %>
                   <strong>Vencimento:</strong> <%= ref.vencimento.toLocaleDateString('pt-BR') %> <br><br>
                   <strong>Valor:</strong> R$<%= ref.valor %>
+
             <% }) %>
         <% } else { %>
             <li>Nenhuma referência encontrada.</li>
@@ -75,6 +77,9 @@
 
 <% }else{ %>
     <p>Morador não encontrado</p>
+    <%} %>
+    <% }else if(apartamentos.length == 0){ %>
+    <p>Apartamento nao encontrado</p>
     <%} %>
 
     <button type="submit">Cadastrar pagamento</button>

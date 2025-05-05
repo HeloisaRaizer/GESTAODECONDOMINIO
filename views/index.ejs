@@ -31,7 +31,7 @@
                 <td><%= row.qtdApt %></td>
                 <td>
                     
-                    <form action="/delete/<%= row.idbloco %>" method="GET" onsubmit="return confirmarExclusao()" style="display:inline;">
+                    <form class="form-excluir" action="/delete/<%= row.idbloco %>" method="GET" onsubmit="return confirmarExclusao()" style="display:inline;">
                             <button type="submit">Excluir</button>
                         </form>
                     <a href="/edit/<%= row.idbloco %>">Editar</a>

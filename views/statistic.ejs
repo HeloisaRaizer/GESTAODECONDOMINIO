@@ -4,28 +4,80 @@
     <meta charset="UTF-8">
     <title>Visão geral</title>
     <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <%- include('partials/navbar') %>
 
+    <h1>Estatísticas do Condomínio</h1>
+    <div class="stats-container">
 
-        <h1>Estatísticas do Condomínio</h1>
-
-        <div class="stats-grid">
+        <div class="stats-top">
             <div class="stat-card">
                 <h2>Moradores</h2>
                 <p class="stat-number"><%= morador[0]['COUNT(idmorador)'] %></p>
             </div>
-
             <div class="stat-card">
                 <h2>Apartamentos</h2>
                 <p class="stat-number"><%= apartamento[0]['COUNT(idapartamento)'] %></p>
             </div>
-
             <div class="stat-card">
                 <h2>Blocos</h2>
                 <p class="stat-number"><%= bloco[0]['COUNT(idbloco)'] %></p>
             </div>
         </div>
+    
+        <div class="stats-bottom">
+            <div class="stat-card">
+                <h2>Manutenções Pendentes</h2>
+                <p class="stat-number"><%= manutencao[0]['COUNT(idmanutencao)'] %></p>
+            </div>
+
+            <div class="stat-card">
+                <h2>Pagamentos realizados</h2>
+                <p class="stat-number"><%= pagamento[0]['COUNT(idpagamento)'] %></p>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="chart-h2">Distribuição de Moradores por Bloco</h2>
+    <canvas id="moradorBlocoChart" width="400" height="200" class="chart-styled"></canvas>
+    
+    <script>
+        // Processa os dados que vieram do backend
+        const moradorBloco = JSON.parse('<%- JSON.stringify(moradorBloco) %>');
+
+        const blocosMap = {};
+        moradorBloco.forEach(item => {
+            const bloco = item.nome_bloco;
+            blocosMap[bloco] = (blocosMap[bloco] || 0) + 1;
+        });
+
+        const labels = Object.keys(blocosMap);
+        const data = Object.values(blocosMap);
+
+        const ctx = document.getElementById('moradorBlocoChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Número de Moradores',
+                    data: data,
+                    backgroundColor: '#3498db'
+                }]
+            },
+            options: {
+                // responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, precision: 0 }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
