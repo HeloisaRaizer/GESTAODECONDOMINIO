@@ -205,5 +205,8 @@ SELECT Morador.idmorador AS id, Morador.cpf, Morador.nome, Apartamento.numeroApt
 
 
 SELECT m.idmanutencao,tm.nome AS tipoManutencaoNome, tm.idtipo FROM Manutencao m JOIN TipoManutencao tm ON m.tipo_id = tm.idtipo;
+SELECT m.idmorador, b.descricao AS nome_bloco
+FROM morador m
+JOIN bloco b ON m.bloco_id = b.idbloco;
 
 
