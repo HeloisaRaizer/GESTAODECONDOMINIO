@@ -10,12 +10,18 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended:true}));
 
+const sslOptions = {
+    ca:fs.readFileSync('./BaltimoreCyberTrustRoot.crt.pem'), // Caminho para o certificado CA
+
+}
+
 const connection = mysql.createConnection({
-    host: 'localhost', //endereço do banco de dados
-    user: 'root', //nome do usuario do banco
-    password: 'Dani090707*', // senha do banco
+    host: 'servidordaniel.database.windows.net', //endereço do banco de dados
+    user: 'root@', //nome do usuario do banco
+    password: 'Cedup@2025', // senha do banco
     database: 'Condominio', // nome do banco
-    port: 3306 // porta do banco
+    port: 3306, // porta do banco
+    ssl: sslOptions // opções de segurança
 });
 
 connection.connect(function(err){
