@@ -52,6 +52,7 @@ CREATE TABLE Pagamento (
 ADD COLUMN referencia_id INT NOT NULL,
 ADD CONSTRAINT fk_referencia
 FOREIGN KEY (referencia_id) REFERENCES Referencia(idreferencia);
+
 -- tabela manutenção
 CREATE TABLE Manutencao (
     idmanutencao INT AUTO_INCREMENT PRIMARY KEY,
