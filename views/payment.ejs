@@ -66,7 +66,7 @@
     <ul>
         <% if (reference && reference.length > 0) { %>
             <% reference.forEach(function(ref) { %>
-                  <strong>Vencimento:</strong> <%= ref.vencimento.toLocaleDateString('pt-BR') %> <br><br>
+                  <strong>Vencimento:</strong> <%= ref.vencimento %> <br><br>
                   <strong>Valor:</strong> R$<%= ref.valor %>
 
             <% }) %>
