@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Condomínio - Manutenções</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <h1>Condomínio</h1>
+  <h2>Manutenções</h2>
+
+  <% if (rows && rows.length) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Local</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(r => { %>
+          <tr>
+            <td><%= r.id %></td>
+            <td><%= r.tipo %></td>
+            <td><%= r.local %></td>
+            <td><%= r.data %></td>
+            <td>
+              <a href="/maintenance/edit/<%= r.id %>">
+                <button>Editar</button>
+              </a>
+              <a href="/maintenance/delete/<%= r.id %>"
+                 onclick="return confirm('Tem certeza que deseja excluir a manutenção #<%= r.id %>?');">
+                <button>Excluir</button>
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Nenhuma manutenção registrada.</p>
+  <% } %>
+
+  <br>
+  <a href="/maintenance/options"><button>Voltar</button></a>
+</body>
+</html>

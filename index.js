@@ -347,30 +347,34 @@ app.get("/residents/create", function(req, res) {
     });
 });
 app.get("/residents/delete/:idmorador", function(req,res){
-    const idmorador = req.params.idmorador;
+  const id = req.params.idmorador;
 
-    const excluirCarro = "DELETE FROM veiculo where morador_id = ?" 
-    const excluir = "DELETE FROM Morador where idmorador = ?" 
+  const delPag = "DELETE FROM Pagamento WHERE morador_id = ?";
+  const delCar = "DELETE FROM Veiculo   WHERE morador_id = ?";
+  const delMor = "DELETE FROM Morador   WHERE idmorador = ?";
 
-    connection.query(excluirCarro, [idmorador], function(err, result){
-        if(err){
-            console.error("Erro ao excluir o veiculo: ", err);
-            res.status(500).send('Erro interno ao excluir veiculo.');
-            return;
+  connection.query(delPag, [id], function(err){
+    if (err) {
+      console.error("Erro ao excluir pagamentos do morador:", err);
+      return res.status(500).send('Erro interno ao excluir pagamentos do morador.');
+    }
+    connection.query(delCar, [id], function(err){
+      if (err) {
+        console.error("Erro ao excluir veículo(s) do morador:", err);
+        return res.status(500).send('Erro interno ao excluir veículos do morador.');
+      }
+      connection.query(delMor, [id], function(err){
+        if (err) {
+          console.error("Erro ao excluir morador:", err);
+          return res.status(500).send('Erro interno ao excluir morador.');
         }
-    
-    connection.query(excluir, [idmorador], function(err, result){
-        if(err){
-            console.error("Erro ao excluir o morador: ", err);
-            res.status(500).send('Erro interno ao excluir morador.');
-            return;
-        }
-        
-        console.log("Morador e veiculo excluidos com sucesso!");
+        console.log("Morador (e dependências) excluídos com sucesso!");
         res.redirect('/residents');
+      });
     });
+  });
 });
-});
+
 app.get("/residents/edit/:idmorador", function(req, res){
     const idmorador = req.params.idmorador;
     const blocoSelecionado = req.query.idbloco; 
@@ -672,67 +676,137 @@ app.post("/payment/register", function(req, res){
 
 // Manutenção
 
+// ===================== Manutenção =====================
+
+// Form de cadastro de manutenção (carrega tipos)
 app.get("/maintenance", function(req,res){
-    const query = "SELECT * FROM tipoManutencao"
-
-    connection.query(query, function(err, results){
-        if(err){
-            console.log("Erro ao buscar dados", err)
-        }
-        res.render("maintenance", {row: results})
-    })
-
-
-    
+  const query = "SELECT * FROM tipoManutencao";
+  connection.query(query, function(err, results){
+    if (err) {
+      console.log("Erro ao buscar dados", err);
+      return res.status(500).send("Erro ao buscar tipos de manutenção");
+    }
+    res.render("maintenance", { row: results });
+  });
 });
 
+// Menu de opções
 app.get("/maintenance/options", function(req,res){
-    res.render("maintenanceOptions")
+  res.render("maintenanceOptions");
 });
 
+// Form para cadastrar tipo de manutenção
 app.get("/maintenance/type", function(req,res){
-    res.render("maintenanceType")
+  res.render("maintenanceType");
 });
 
+// >>> NOVA ROTA: Listar manutenções (tipo, local, data)
+app.get("/maintenance/list", function(req, res){
+  const query = `
+    SELECT
+      m.idmanutencao AS id,
+      tm.nome        AS tipo,
+      m.local        AS local,
+      m.data         AS data
+    FROM Manutencao m
+    JOIN tipoManutencao tm ON tm.idtipo = m.tipo_id
+    -- "data" está como VARCHAR(10) no formato dd/mm/aaaa
+    ORDER BY STR_TO_DATE(m.data, '%d/%m/%Y') DESC, m.idmanutencao DESC
+  `;
+  connection.query(query, function(err, results){
+    if (err) {
+      console.log("Erro ao buscar manutenções", err);
+      return res.status(500).send("Erro ao buscar manutenções");
+    }
+    res.render("maintenanceList", { rows: results });
+  });
+});
 
-app.post("/maintenance/register", function(req, res){
-    const tipo_id = parseInt(req.body.tipo_id, 10);
-    const date = req.body.date
-    const local = req.body.local
+app.get("/maintenance/edit/:idmanutencao", function(req, res){
+  const id = req.params.idmanutencao;
 
-    const insert = "INSERT INTO Manutencao (tipo_id, data, local) VALUES (?,?,?)"
-    console.log(req.body)
-    if (isNaN(tipo_id)) {
-            console.log("Erro: tipo_id inválido.");
-            return res.status(400).send("Tipo de manutenção inválido.");
-        }
-        
-    connection.query(insert, [tipo_id, date, local], function(err, results){
-        if(err){
-            if(err){
-                console.log("Não foi possível inserir os dados:", err);
-            }
-        }
+  const qMan = `
+    SELECT m.idmanutencao AS id, m.tipo_id, m.local, m.data
+    FROM Manutencao m WHERE m.idmanutencao = ?`;
+  const qTipos = `SELECT idtipo, nome FROM tipoManutencao ORDER BY nome`;
 
-        console.log("Tipo de manutenção inserida com sucesso")
-        res.redirect("/maintenance/options")
+  connection.query(qMan, [id], function(err, manRows){
+    if (err) return res.status(500).send("Erro ao buscar manutenção");
+    if (!manRows.length) return res.status(404).send("Manutenção não encontrada");
+
+    connection.query(qTipos, function(err2, tipos){
+      if (err2) return res.status(500).send("Erro ao buscar tipos");
+      res.render("maintenanceEdit", { m: manRows[0], tipos });
     });
+  });
 });
 
+// === Editar manutenção: salvar ===
+app.post("/maintenance/edit/:idmanutencao", function(req, res){
+  const id = req.params.idmanutencao;
+  const { tipo_id, date, local } = req.body;
+
+  const up = `UPDATE Manutencao
+              SET tipo_id = ?, data = ?, local = ?
+              WHERE idmanutencao = ?`;
+
+  connection.query(up, [parseInt(tipo_id,10), date, local, id], function(err){
+    if (err) return res.status(500).send("Erro ao editar manutenção");
+    res.redirect("/maintenance/list");
+  });
+});
+
+// Excluir manutenção
+app.get("/maintenance/delete/:idmanutencao", function(req, res){
+  const id = req.params.idmanutencao;
+
+  const del = "DELETE FROM Manutencao WHERE idmanutencao = ?";
+  connection.query(del, [id], function(err){
+    if (err) {
+      console.log("Erro ao excluir manutenção:", err);
+      return res.status(500).send("Erro ao excluir manutenção");
+    }
+    console.log("Manutenção excluída:", id);
+    res.redirect("/maintenance/list");
+  });
+});
+
+// Registrar uma manutenção
+app.post("/maintenance/register", function(req, res){
+  const tipo_id = parseInt(req.body.tipo_id, 10);
+  const date = req.body.date;   // dd/mm/aaaa
+  const local = req.body.local;
+
+  if (isNaN(tipo_id)) {
+    console.log("Erro: tipo_id inválido.");
+    return res.status(400).send("Tipo de manutenção inválido.");
+  }
+
+  const insert = "INSERT INTO Manutencao (tipo_id, data, local) VALUES (?,?,?)";
+  connection.query(insert, [tipo_id, date, local], function(err){
+    if (err) {
+      console.log("Não foi possível inserir os dados:", err);
+      return res.status(500).send("Erro ao cadastrar manutenção");
+    }
+    console.log("Manutenção inserida com sucesso");
+    res.redirect("/maintenance/options");
+  });
+});
+
+// Registrar um tipo de manutenção
 app.post("/maintenance/registerType", function(req, res){
-    const name = req.body.name
+  const name = req.body.name;
+  const insert = "INSERT INTO tipoManutencao (nome) VALUE (?)";
 
-    const insert = "INSERT INTO tipoManutencao (nome) VALUE (?)"
-
-    connection.query(insert, name, function(err, type){
-        if(err){
-            console.log("Erro ao enviar dados", err)
-        }
-
-        console.log("Tipo de manutenção cadastrado com sucesso")
-        res.redirect("/maintenance/options")
-    })
-})
+  connection.query(insert, [name], function(err){
+    if (err) {
+      console.log("Erro ao enviar dados", err);
+      return res.status(500).send("Erro ao cadastrar tipo de manutenção");
+    }
+    console.log("Tipo de manutenção cadastrado com sucesso");
+    res.redirect("/maintenance/options");
+  });
+});
 
 //Visão geral
 
@@ -788,7 +862,7 @@ app.get("/statistic", function(req, res){
     });
 });
 
-// Serividor rodadno
+// Serividor rodando
 app.listen(3000, function(){
     console.log("Servidor rodando na URL http://localhost:3000")
     });

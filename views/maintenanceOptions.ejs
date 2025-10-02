@@ -7,12 +7,16 @@
 </head>
 <body>
 
-    <%- include('partials/navbar') %>
+  <%- include('partials/navbar') %>
   <h1>Condomínio</h1>
   <h2>Escolha uma opção:</h2>
 
-    <a href="/maintenance"><button>Cadastrar uma manutenção</button></a>
-    <a href="/maintenance/type"><button>Cadastrar um tipo de manutenção</button></a><br>
-    <a onclick="window.history.back()">Voltar</a>
+  <a href="/maintenance"><button>Marcar manutenção</button></a>
+  <a href="/maintenance/type"><button>Cadastrar um tipo de manutenção</button></a>
+  <a href="/maintenance/list"><button>Listar manutenções</button></a>
+
+  <br>
+  <a onclick="window.history.back()">Voltar</a>
+
 </body>
 </html>
